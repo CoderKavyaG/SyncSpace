@@ -1,0 +1,160 @@
+// SyncSpace Relational Database Schema
+// Optimized for strict normalization, recursive page trees, and high-performance block operations.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// USER MANAGEMENT & AUTHENTICATION
+// -----------------------------------------------------------------------------
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String?
+  hashedPassword String
+  avatarUrl      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Explicit Relations
+  ownedWorkspaces Workspace[]       @relation("WorkspaceOwner")
+  memberships     WorkspaceMember[]
+  createdPages    Page[]            @relation("PageCreator")
+
+  @@map("users")
+}
+
+// -----------------------------------------------------------------------------
+// WORKSPACE & ROLE-BASED ACCESS CONTROL (RBAC)
+// -----------------------------------------------------------------------------
+
+enum Role {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique // Index: Fast URL routing for /workspace/[slug]
+  iconUrl   String?
+  ownerId   String
+  owner     User     @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  members WorkspaceMember[]
+  pages   Page[]
+
+  // Indexes
+  @@index([ownerId]) // Index: Quick retrieval of all workspaces owned by a specific user
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        Role      @default(EDITOR)
+  joinedAt    DateTime  @default(now())
+
+  // Constraints & Indexes
+  @@unique([workspaceId, userId]) // Constraint: A user can only have one membership record per workspace
+  @@index([userId])               // Index: Rapid lookup of all workspaces a user has joined
+  @@index([workspaceId])          // Index: Fast team member roster retrieval for workspace settings
+  @@map("workspace_members")
+}
+
+// -----------------------------------------------------------------------------
+// PAGE HIERARCHY & DOCUMENT ARCHITECTURE
+// -----------------------------------------------------------------------------
+
+model Page {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  // Recursive Self-Relation for Arbitrary Nesting Depth
+  parentPageId String?
+  parentPage   Page?   @relation("PageHierarchy", fields: [parentPageId], references: [id], onDelete: Cascade)
+  childPages   Page[]  @relation("PageHierarchy")
+
+  title       String   @default("Untitled")
+  icon        String?
+  coverUrl    String?
+  isArchived  Boolean  @default(false)
+
+  // Yjs CRDT State Snapshot (Binary bytea)
+  yjsState       Bytes?
+  // Human-readable denormalized JSON content copy for search indexing
+  contentSummary String?
+
+  createdById String
+  createdBy   User     @relation("PageCreator", fields: [createdById], references: [id], onDelete: Restrict)
+
+  blocks      Block[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Indexes
+  @@index([workspaceId])               // Index: Efficient workspace-wide page fetching
+  @@index([parentPageId])              // Index: Fast immediate child node fetching for tree traversal
+  @@index([workspaceId, isArchived])   // Index: Filter active vs trash pages without table scans
+  @@index([createdById])               // Index: Author filter queries
+  @@map("pages")
+}
+
+// -----------------------------------------------------------------------------
+// BLOCK ENGINE CONTENT MODEL
+// -----------------------------------------------------------------------------
+
+enum BlockType {
+  TEXT
+  HEADING_1
+  HEADING_2
+  HEADING_3
+  TODO
+  CODE
+  TABLE
+  IMAGE
+  DIVIDER
+  CALLOUT
+}
+
+model Block {
+  id     String    @id @default(cuid())
+  pageId String
+  page   Page      @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  type   BlockType @default(TEXT)
+
+  // Block Content Payload stored as structured JSON (text runs, formatting, metadata)
+  content Json @default("{}")
+
+  // Fractional Indexing Order Key (Float for O(1) inserts/reorders without re-indexing siblings)
+  order Float
+
+  // Optional Self-Relation for Nested Blocks (e.g. sub-todos, indented lists, column layouts)
+  parentBlockId String?
+  parentBlock   Block?  @relation("BlockHierarchy", fields: [parentBlockId], references: [id], onDelete: Cascade)
+  childBlocks   Block[] @relation("BlockHierarchy")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Indexes
+  @@index([pageId, order]) // Index: Composite index for ultra-fast ordered block rendering per page
+  @@index([parentBlockId]) // Index: Quick fetch of nested child blocks
+  @@map("blocks")
+}
