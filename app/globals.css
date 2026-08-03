@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* SyncSpace Light Mode Design Tokens */
+    --background: 40 20% 98%;      /* #FAF9F6 Warm Alabaster Paper */
+    --foreground: 210 14% 9%;       /* #14171A Charcoal Deep Text */
+    
+    --card: 0 0% 100%;             /* #FFFFFF Pure Paper Surface */
+    --card-foreground: 210 14% 9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 14% 9%;
+
+    --primary: 14 90% 59%;          /* #F56539 Cosmic Terracotta Ember */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 172 66% 50%;       /* #2DD4BF Teal Signal Accent */
+    --secondary-foreground: 218 15% 6%;
+
+    --muted: 220 14% 94%;          /* #EFF1F5 Light Surface Muted */
+    --muted-foreground: 220 9% 42%;/* #626875 Subtitle Text */
+
+    --accent: 14 90% 96%;          /* Soft Ember Highlight */
+    --accent-foreground: 14 90% 45%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 220 13% 89%;         /* #E2E4E9 Muted Border */
+    --input: 220 13% 89%;
+    --ring: 14 90% 59%;
+
+    --radius: 0.625rem;            /* 10px base corner-radius */
+
+    --bg-app: 40 20% 98%;
+    --surface: 0 0% 100%;
+  }
+
+  .dark {
+    /* SyncSpace Dark Mode Design Tokens (Default Workspace Vibe) */
+    --background: 218 15% 6%;      /* #0E1013 Deep Obsidian Charcoal */
+    --foreground: 210 14% 95%;     /* #F0F2F5 Crisp Primary Text */
+
+    --card: 218 15% 10%;           /* #16191E Warm Slate Surface */
+    --card-foreground: 210 14% 95%;
+
+    --popover: 218 15% 10%;
+    --popover-foreground: 210 14% 95%;
+
+    --primary: 14 90% 59%;          /* #F56539 Cosmic Terracotta Ember */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 172 66% 50%;       /* #2DD4BF Teal Signal Accent */
+    --secondary-foreground: 218 15% 6%;
+
+    --muted: 218 13% 16%;          /* #22262E Slate Subsurface */
+    --muted-foreground: 218 8% 57%;/* #8A8F98 Muted Metadata Text */
+
+    --accent: 218 13% 18%;
+    --accent-foreground: 210 14% 95%;
+
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 218 14% 17%;         /* #262A33 Crisp Obsidian Hairline */
+    --input: 218 14% 17%;
+    --ring: 14 90% 59%;
+
+    --bg-app: 218 15% 6%;
+    --surface: 218 15% 10%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-plus-jakarta), sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-outfit), sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Kinetic Block Rail (Signature Design Detail) */
+.kinetic-block-rail {
+  position: relative;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kinetic-block-rail::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 9999px;
+  background-color: hsl(var(--primary));
+  opacity: 0;
+  transform: scaleY(0.4);
+  transition: all 0.2s ease;
+}
+
+.kinetic-block-rail:hover::before,
+.kinetic-block-rail:focus-within::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* Collaborative Remote Cursors & Selection Styling */
+.collaboration-cursor__caret {
+  border-left: 2px solid;
+  border-right: 0;
+  margin-left: -1px;
+  margin-right: -1px;
+  pointer-events: none;
+  position: relative;
+  word-break: normal;
+}
+
+.collaboration-cursor__label {
+  border-radius: 4px;
+  color: #ffffff;
+  font-family: var(--font-plus-jakarta), sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  left: -2px;
+  line-height: 1.2;
+  padding: 2px 6px;
+  position: absolute;
+  top: -1.6em;
+  user-select: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: opacity 0.3s ease;
+}
+
+.collaboration-cursor__label--inactive {
+  opacity: 0.2;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.4);
+}
+
+/* Tiptap Placeholder styling */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: hsl(var(--muted-foreground) / 0.4);
+  pointer-events: none;
+  height: 0;
+}
