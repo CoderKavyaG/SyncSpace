@@ -10,5 +10,14 @@
     "paths": {
       "@/*": ["./*"]
     }
-  }
+  },
+  "include": [
+    "server/**/*",
+    "lib/prisma.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "app",
+    "components"
+  ]
 }
