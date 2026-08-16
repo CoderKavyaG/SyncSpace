@@ -40,22 +40,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark ${outfit.variable} ${plusJakartaSans.variable} ${jetbrainsMono.variable}`}
+      className={`${outfit.variable} ${plusJakartaSans.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-screen bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary">
         <AuthProvider>
           {children}
           <Toaster
-            theme="dark"
             position="bottom-right"
-            toastOptions={{
-              style: {
-                background: "hsl(var(--card))",
-                color: "hsl(var(--foreground))",
-                border: "1px solid hsl(var(--border))",
-                fontFamily: "var(--font-plus-jakarta)",
-              },
-            }}
+            richColors
+            closeButton
           />
         </AuthProvider>
       </body>

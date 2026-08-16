@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ChevronsUpDown, Plus, Building2, Layers, Boxes, Sparkles, Terminal } from "lucide-react";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import { CreateWorkspaceDialog } from "@/components/workspace/create-workspace-dialog";
 
 export interface WorkspaceItem {
@@ -34,7 +34,7 @@ export function WorkspaceSwitcher({
   const renderWorkspaceAvatar = (name?: string) => {
     const initial = (name || "W")[0]?.toUpperCase() || "W";
     return (
-      <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg bg-primary/15 border border-primary/30 font-bold text-xs text-primary font-display shadow-xs">
+      <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 font-bold text-xs text-[#0070F3] font-display shadow-xs">
         {initial}
       </div>
     );
@@ -43,7 +43,7 @@ export function WorkspaceSwitcher({
   return (
     <>
       <div className="relative z-50 font-body">
-        {/* Workspace Trigger Button - Adaptive Light & Dark Mode */}
+        {/* Workspace Trigger Button */}
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
@@ -63,13 +63,13 @@ export function WorkspaceSwitcher({
           <ChevronsUpDown className="w-3.5 h-3.5 flex-shrink-0 text-muted-foreground" />
         </button>
 
-        {/* Dropdown Menu Overlay */}
+        {/* Dropdown Menu Overlay - 100% Solid Opaque (Light & Dark Mode) */}
         <AnimatePresence>
           {isOpen && (
             <>
               {/* Backdrop */}
               <div
-                className="fixed inset-0 z-[60]"
+                className="fixed inset-0 z-[80]"
                 onClick={() => setIsOpen(false)}
               />
 
@@ -78,9 +78,9 @@ export function WorkspaceSwitcher({
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -6, scale: 0.98 }}
                 transition={{ duration: 0.15, ease: "easeOut" }}
-                className="absolute left-0 right-0 top-full z-[70] mt-1.5 rounded-xl border border-border bg-popover text-popover-foreground p-1.5 shadow-2xl ring-1 ring-black/10"
+                className="absolute left-0 right-0 top-full z-[100] mt-1.5 rounded-xl border border-border bg-white dark:bg-[#1A1D24] p-1.5 shadow-2xl ring-1 ring-black/10"
               >
-                <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground font-display">
+                <div className="px-2 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 font-display">
                   Workspaces
                 </div>
 
@@ -98,35 +98,35 @@ export function WorkspaceSwitcher({
                           }}
                           className={`flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-xs transition-colors cursor-pointer ${
                             isSelected
-                              ? "bg-primary/10 text-primary font-semibold border border-primary/20"
-                              : "text-foreground hover:bg-accent/50"
+                              ? "bg-blue-50 dark:bg-blue-950/50 text-[#0070F3] font-semibold border border-blue-200 dark:border-blue-800"
+                              : "text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
                           }`}
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             {renderWorkspaceAvatar(ws.name)}
                             <span className="truncate font-medium">{ws.name}</span>
                           </div>
-                          {isSelected && <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />}
+                          {isSelected && <Check className="w-3.5 h-3.5 text-[#0070F3] flex-shrink-0" />}
                         </button>
                       );
                     })
                   ) : (
-                    <div className="px-2.5 py-2 text-xs text-muted-foreground">
+                    <div className="px-2.5 py-2 text-xs text-slate-400">
                       No workspaces found
                     </div>
                   )}
                 </div>
 
-                <div className="mt-1.5 pt-1.5 border-t border-border/80">
+                <div className="mt-1.5 pt-1.5 border-t border-slate-200 dark:border-slate-800">
                   <button
                     type="button"
                     onClick={() => {
                       setIsOpen(false);
                       setIsDialogOpen(true);
                     }}
-                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-muted-foreground hover:bg-accent/50 hover:text-foreground transition-colors cursor-pointer"
+                    className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer"
                   >
-                    <Plus className="w-3.5 h-3.5 text-primary" />
+                    <Plus className="w-3.5 h-3.5 text-[#0070F3]" />
                     <span>Create new workspace</span>
                   </button>
                 </div>

@@ -307,7 +307,13 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
 
           {/* PAGE CONTENT CONTAINER */}
           <main className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 custom-scrollbar bg-background">
-            <div className="max-w-4xl mx-auto h-full">{children}</div>
+            <div
+              className={`mx-auto h-full transition-all duration-300 ${
+                isSidebarCollapsed ? "max-w-5xl px-2 sm:px-6" : "max-w-4xl"
+              }`}
+            >
+              {children}
+            </div>
           </main>
         </div>
 
