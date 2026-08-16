@@ -19,6 +19,7 @@
 # Database & IDE
 *.log
 *.sqlite
+*.tsbuildinfo
 .idea/
 .vscode/
 *.swp

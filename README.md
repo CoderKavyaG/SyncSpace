@@ -2,20 +2,23 @@
 
 > **The Next-Generation Local-First Real-Time Collaborative Workspace Engine**
 
-SyncSpace is a modern collaborative workspace built on **Local-First Architecture**, **IndexedDB storage**, and **Yjs CRDT Conflict-Free Replication**. Designed for speed, offline resilience, and friction-free team writing.
+SyncSpace is a modern collaborative workspace built on **Local-First Architecture**, **IndexedDB client-side persistence**, and **Yjs CRDT Conflict-Free Replication**. Designed for sub-millisecond typing speeds, offline resilience, and friction-free team collaboration.
 
 ---
 
-## Visual Tour
+## Visual Showcase
 
-### Landing Page & Notion-Inspired Branding
-![SyncSpace Hero Banner](public/screenshots/landing-hero.png)
+### 1. Where Modern Teams Write & Sync Together
+![SyncSpace Hero Landing](public/screenshots/hero-banner.png)
 
-### Workflows & Engineering Automations
-![Workflows & Engineering Tasks](public/screenshots/workflows.png)
+### 2. Zero-Latency Collaborative Editor Canvas
+![Product Roadmap & Architecture Editor](public/screenshots/editor-preview.png)
 
-### Founders & High-Velocity Teams
-![Founders & Teams](public/screenshots/founders.png)
+### 3. Workflows & Engineering Automations
+![Keep work moving 24/7 with local-first sync](public/screenshots/workflows-section.png)
+
+### 4. Workspace HQ, Teamspaces & Mid-Aligned Command Bar
+![SyncSpace Dark Mode Workspace Canvas](public/screenshots/workspace-canvas.png)
 
 ---
 
@@ -79,8 +82,8 @@ SyncSpace is a modern collaborative workspace built on **Local-First Architectur
 
 1. Clone repository:
 ```bash
-git clone https://github.com/your-org/syncspace.git
-cd syncspace
+git clone https://github.com/CoderKavyaG/SyncSpace.git
+cd SyncSpace
 ```
 
 2. Install dependencies:
