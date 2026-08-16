@@ -42,7 +42,7 @@ export function TrashDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
-  const fetchTrash = async () => {
+  const fetchTrash = React.useCallback(async () => {
     if (!workspaceId) return;
     setIsLoading(true);
     try {
@@ -56,13 +56,13 @@ export function TrashDialog({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [workspaceId]);
 
   useEffect(() => {
     if (isOpen && workspaceId) {
       fetchTrash();
     }
-  }, [isOpen, workspaceId]);
+  }, [isOpen, workspaceId, fetchTrash]);
 
   const handleRestore = async (pageId: string) => {
     setProcessingId(pageId);
