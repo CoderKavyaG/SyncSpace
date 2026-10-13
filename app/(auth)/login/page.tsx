@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
@@ -8,6 +7,20 @@ import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-[360px] w-full items-center justify-center">
+          <Loader2 className="w-6 h-6 animate-spin text-[#0070F3]" />
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/workspace";

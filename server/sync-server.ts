@@ -1,3 +1,6 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+
 import { WebSocketServer, WebSocket } from "ws";
 import * as http from "http";
 import * as Y from "yjs";
