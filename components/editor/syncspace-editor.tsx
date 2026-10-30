@@ -395,6 +395,15 @@ function SyncSpaceEditorInner({
     return () => window.removeEventListener("mousedown", handleOutsideClick);
   }, [isSlashMenuOpen]);
 
+  // Keep active slash menu item in view during keyboard arrow navigation
+  useEffect(() => {
+    if (!isSlashMenuOpen) return;
+    const activeEl = document.querySelector(`[data-slash-item-index="${slashIndex}"]`);
+    if (activeEl) {
+      activeEl.scrollIntoView({ block: "nearest" });
+    }
+  }, [slashIndex, isSlashMenuOpen]);
+
   return (
     <div className="relative max-w-4xl mx-auto py-8 px-4 sm:px-8 font-body">
       {/* HEADER BAR: Document Icon, Title & Sync Status Badge */}
@@ -461,6 +470,7 @@ function SyncSpaceEditorInner({
                       <button
                         key={item.title}
                         type="button"
+                        data-slash-item-index={index}
                         onClick={() => {
                           runSlashCommand(item);
                         }}
