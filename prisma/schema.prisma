@@ -15,13 +15,14 @@ datasource db {
 // -----------------------------------------------------------------------------
 
 model User {
-  id             String   @id @default(cuid())
-  email          String   @unique
-  name           String?
-  hashedPassword String?
-  avatarUrl      String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                     String   @id @default(cuid())
+  email                  String   @unique
+  name                   String?
+  hashedPassword         String?
+  avatarUrl              String?
+  hasCompletedOnboarding Boolean  @default(false)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
   // Explicit Relations
   ownedWorkspaces Workspace[]       @relation("WorkspaceOwner")

@@ -83,6 +83,22 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
   useEffect(() => {
     fetchWorkspaces();
 
+    // Check if user has completed onboarding; if not, route them to onboarding
+    (async () => {
+      try {
+        const res = await fetch("/api/onboarding/status");
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.hasCompletedOnboarding === false) {
+            router.push("/onboarding");
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Onboarding check error:", err);
+      }
+    })();
+
     // Check for invite/join link: /workspace?join=<slug>
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);

@@ -237,12 +237,15 @@ export default function OnboardingPage() {
                       type="text"
                       value={workspaceName}
                       onChange={(e) => setWorkspaceName(e.target.value)}
-                      placeholder="e.g. Acme Studio, Product Lab"
+                      placeholder="e.g. My Workspace, Engineering Lab, Studio"
                       required
                       autoFocus
                       className="w-full rounded-xl border border-[#E2E4E9] bg-white py-2.5 px-3.5 text-sm text-[#14171A] placeholder:text-[#8A8F98]/60 focus:border-[#0070F3] focus:outline-none focus:ring-2 focus:ring-[#0070F3]/20 transition-all font-body font-medium"
                     />
                   </div>
+                  <p className="text-[11px] text-[#8A8F98] mt-1.5">
+                    Customize this to anything you want (e.g. &quot;My Workspace&quot;, &quot;Engineering&quot;, &quot;Research Space&quot;).
+                  </p>
                 </div>
 
                 {/* Templates Preview Pills */}

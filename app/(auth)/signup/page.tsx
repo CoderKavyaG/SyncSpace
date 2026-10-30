@@ -47,7 +47,7 @@ export default function SignupPage() {
     try {
       setIsGoogleLoading(true);
       setError(null);
-      await signIn("google", { callbackUrl: "/workspace" });
+      await signIn("google", { callbackUrl: "/onboarding" });
     } catch (err) {
       console.error("Google sign-up error:", err);
       setError("Failed to sign up with Google. Please try again.");
@@ -108,7 +108,7 @@ export default function SignupPage() {
         return;
       }
 
-      window.location.href = "/workspace";
+      window.location.href = "/onboarding";
     } catch (err) {
       console.error("Signup submit error:", err);
       setError("An unexpected network error occurred. Please try again.");

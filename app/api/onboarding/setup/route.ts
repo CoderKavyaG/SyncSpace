@@ -99,6 +99,12 @@ export async function POST(req: Request) {
       });
     }
 
+    // Mark user onboarding as completed
+    await db.user.update({
+      where: { id: session.user.id },
+      data: { hasCompletedOnboarding: true },
+    });
+
     return NextResponse.json({
       success: true,
       workspaceId,
