@@ -44,6 +44,7 @@ interface SyncSpaceEditorProps {
   userName: string;
   userRole?: string;
   initialTitle?: string;
+  initialBlocks?: any[];
   onTitleChange?: (newTitle: string) => void;
 }
 
@@ -60,6 +61,7 @@ export function SyncSpaceEditor({
   userName,
   userRole = "EDITOR",
   initialTitle = "Untitled",
+  initialBlocks,
   onTitleChange,
 }: SyncSpaceEditorProps) {
   const [provider, setProvider] = useState<SyncSpaceYjsProvider | null>(null);
@@ -95,10 +97,45 @@ export function SyncSpaceEditor({
       userName={userName}
       userRole={userRole}
       initialTitle={initialTitle}
+      initialBlocks={initialBlocks}
       onTitleChange={onTitleChange}
       syncState={syncState}
     />
   );
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function blocksToHtml(blocks: any[]): string {
+  if (!blocks || !Array.isArray(blocks) || blocks.length === 0) return "";
+  return blocks
+    .map((b) => {
+      const text = b.content?.text || "";
+      switch (b.type) {
+        case "HEADING_1":
+          return `<h1>${escapeHtml(text)}</h1>`;
+        case "HEADING_2":
+          return `<h2>${escapeHtml(text)}</h2>`;
+        case "HEADING_3":
+          return `<h3>${escapeHtml(text)}</h3>`;
+        case "TODO":
+          return `<ul data-type="taskList"><li data-type="taskItem" data-checked="${!!b.content?.checked}">${escapeHtml(text)}</li></ul>`;
+        case "CODE":
+          return `<pre><code>${escapeHtml(text)}</code></pre>`;
+        case "CALLOUT":
+          return `<blockquote><p>💡 ${escapeHtml(text)}</p></blockquote>`;
+        case "DIVIDER":
+          return `<hr />`;
+        default:
+          return `<p>${escapeHtml(text)}</p>`;
+      }
+    })
+    .join("");
 }
 
 function SyncSpaceEditorInner({
@@ -108,6 +145,7 @@ function SyncSpaceEditorInner({
   userName,
   userRole,
   initialTitle,
+  initialBlocks,
   onTitleChange,
   syncState,
 }: {
@@ -117,6 +155,7 @@ function SyncSpaceEditorInner({
   userName: string;
   userRole: string;
   initialTitle: string;
+  initialBlocks?: any[];
   onTitleChange?: (newTitle: string) => void;
   syncState: SyncState;
 }) {
@@ -143,16 +182,15 @@ function SyncSpaceEditorInner({
   const userColor = getUserPresenceColor(userId);
   const isReadOnly = userRole === "VIEWER";
 
-  console.log("[DEBUG EDITOR] provider =", provider);
-  console.log("[DEBUG EDITOR] provider.doc =", provider?.doc);
-  console.log("[DEBUG EDITOR] provider.awareness =", provider?.awareness);
-
   // Initialize Tiptap Editor
   const editor = useEditor(
     {
+      immediatelyRender: false,
       editable: !isReadOnly,
       extensions: [
-        StarterKit,
+        StarterKit.configure({
+          undoRedo: false,
+        }),
         TaskList,
         TaskItem.configure({
           nested: true,
@@ -163,10 +201,6 @@ function SyncSpaceEditorInner({
         TableRow,
         TableCell,
         TableHeader,
-        Link.configure({
-          openOnClick: false,
-        }),
-        Underline,
         Placeholder.configure({
           placeholder: "Type '/' for commands or start writing...",
         }),
@@ -238,6 +272,18 @@ function SyncSpaceEditorInner({
     },
     [provider]
   );
+
+  // Seed initial blocks into empty Tiptap Yjs document
+  useEffect(() => {
+    if (!editor || !initialBlocks || initialBlocks.length === 0) return;
+    const docText = editor.state.doc.textContent.trim();
+    if (docText.length === 0 && editor.state.doc.childCount <= 1) {
+      const html = blocksToHtml(initialBlocks);
+      if (html) {
+        editor.commands.setContent(html);
+      }
+    }
+  }, [editor, initialBlocks]);
 
   // Available Slash Commands List
   const slashItems: SlashMenuItem[] = [

@@ -2,6 +2,8 @@ import React from "react";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 import {
   Zap,
   ShieldCheck,

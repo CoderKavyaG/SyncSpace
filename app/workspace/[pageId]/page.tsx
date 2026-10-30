@@ -54,6 +54,7 @@ export default function WorkspacePageDetail({ params }: PageProps) {
       userId={user?.id || "anonymous-user"}
       userName={user?.name || "Collaborator"}
       initialTitle={page?.title || "Untitled"}
+      initialBlocks={page?.blocks}
       onTitleChange={async (newTitle) => {
         try {
           await fetch(`/api/pages/${pageId}`, {

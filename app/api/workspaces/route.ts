@@ -14,7 +14,14 @@ export async function GET() {
       return apiUnauthorized("Unauthorized");
     }
 
-    const workspaces = await getUserWorkspaces(user.id);
+    let workspaces = await getUserWorkspaces(user.id);
+
+    // Self-healing: if an authenticated user somehow has no workspace, auto-create one
+    if (workspaces.length === 0) {
+      const newWs = await createWorkspace(user.id, `${user.name || "Personal"}'s Workspace`);
+      workspaces = await getUserWorkspaces(user.id);
+    }
+
     return apiSuccess(workspaces);
   } catch (error) {
     console.error("GET /api/workspaces error:", error);

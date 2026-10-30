@@ -14,6 +14,7 @@ import { signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Edit2, Trash2, Loader2, X, AlertCircle } from "lucide-react";
 import { TrashDialog } from "@/components/workspace/trash-dialog";
+import { WorkspaceSettingsDialog } from "@/components/workspace/workspace-settings-dialog";
 
 interface WorkspaceLayoutProps {
   children: React.ReactNode;
@@ -26,6 +27,7 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isTrashOpen, setIsTrashOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([]);
   const [currentWorkspace, setCurrentWorkspace] = useState<WorkspaceItem | null>(null);
@@ -80,6 +82,31 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
 
   useEffect(() => {
     fetchWorkspaces();
+
+    // Check for invite/join link: /workspace?join=<slug>
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const joinSlug = params.get("join");
+      if (joinSlug) {
+        (async () => {
+          try {
+            const res = await fetch("/api/workspaces/join", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ slugOrId: joinSlug }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+              toast.success(data.message || "Joined workspace!");
+              await fetchWorkspaces();
+              window.history.replaceState({}, "", window.location.pathname);
+            }
+          } catch (err) {
+            console.error("Auto join error:", err);
+          }
+        })();
+      }
+    }
   }, [fetchWorkspaces]);
 
   useEffect(() => {
@@ -138,10 +165,26 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
   };
 
   const handleCreatePage = async (parentPageId?: string | null, customTitle?: string) => {
-    if (!currentWorkspace?.id || isCreatingPage) return;
+    let wsId = currentWorkspace?.id;
+    if (!wsId) {
+      try {
+        const wsRes = await fetch("/api/workspaces");
+        if (wsRes.ok) {
+          const wsList = await wsRes.json();
+          if (wsList && wsList.length > 0) {
+            wsId = wsList[0].id;
+            setCurrentWorkspace(wsList[0]);
+          }
+        }
+      } catch (err) {
+        console.error("Auto-fetch workspace before page creation failed:", err);
+      }
+    }
+
+    if (!wsId || isCreatingPage) return;
     setIsCreatingPage(true);
     try {
-      const res = await fetch(`/api/workspaces/${currentWorkspace.id}/pages`, {
+      const res = await fetch(`/api/workspaces/${wsId}/pages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -152,7 +195,7 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
 
       if (res.ok) {
         const newPage = await res.json();
-        await fetchPageTree(currentWorkspace.id);
+        await fetchPageTree(wsId);
         toast.success(`Created "${newPage.title || "Untitled"}"`);
         router.push(`/workspace/${newPage.id}`);
       } else {
@@ -301,8 +344,10 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
             onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
             workspaceName={currentWorkspace?.name}
             breadcrumbs={getBreadcrumbs()}
+            activePageId={activePageId}
             onSelectBreadcrumb={handleSelectPage}
             onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+            onOpenSettings={() => setIsSettingsOpen(true)}
           />
 
           {/* PAGE CONTENT CONTAINER */}
@@ -336,6 +381,22 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
           onPageRestored={() => {
             if (currentWorkspace?.id) {
               fetchPageTree(currentWorkspace.id);
+            }
+          }}
+        />
+
+        {/* WORKSPACE SETTINGS & TEAM INVITES DIALOG */}
+        <WorkspaceSettingsDialog
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          workspace={currentWorkspace}
+          onWorkspaceUpdated={(updated) => {
+            if (currentWorkspace) {
+              const updatedWs = { ...currentWorkspace, ...updated };
+              setCurrentWorkspace(updatedWs);
+              setWorkspaces((prev) =>
+                prev.map((w) => (w.id === updatedWs.id ? updatedWs : w))
+              );
             }
           }}
         />
